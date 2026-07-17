@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia Vallenata | Curso de Acordeón Juan Sajona</title>
+    <style>
+        :root {
+            --primary: #2b3a4a;
+            --secondary: #e63946;
+            --accent: #f4a261;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #fff;
+            --sidebar-width: 350px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            overflow: hidden;
+        }
+
+        /* Sidebar - Navegación del Curso */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--primary);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background-color: #1d2733;
+            text-align: center;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: var(--accent);
+        }
+
+        .sidebar-header p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .progress-container {
+            padding: 15px 20px;
+            background-color: #23303d;
+            border-bottom: 1px solid #1d2733;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--secondary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .module-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .module {
+            margin-bottom: 5px;
+        }
+
+        .module-title {
+            padding: 12px 20px;
+            font-weight: bold;
+            background-color: rgba(255,255,255,0.05);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid transparent;
+        }
+
+        .module-title:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .lesson-list {
+            display: none;
+            list-style: none;
+            background-color: #2a3746;
+        }
+
+        .module.active .lesson-list {
+            display: block;
+        }
+        
+        .module.active .module-title {
+            border-left: 4px solid var(--accent);
+        }
+
+        .lesson {
+            padding: 10px 20px 10px 40px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.02);
+            transition: all 0.2s;
+        }
+
+        .lesson:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .lesson.active {
+            color: var(--accent);
+            font-weight: bold;
+            background-color: rgba(0,0,0,0.2);
+        }
+
+        .lesson input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+            accent-color: var(--secondary);
+        }
+
+        /* Contenido Principal - Reproductor */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .topbar {
+            height: 60px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        .topbar h2 {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .video-container {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .iframe-wrapper {
+            width: 100%;
+            max-width: 900px;
+            aspect-ratio: 16 / 9;
+            background-color: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-bottom: 20px;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .lesson-info {
+            width: 100%;
+            max-width: 900px;
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+
+        .lesson-info h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+
+        .lesson-info p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .btn-complete {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-complete:hover {
+            background-color: #c92a37;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: 40vh;
+            }
+            .main-content {
+                height: 60vh;
+            }
+            .video-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>Curso de Acordeón</h1>
+            <p>Juan Sajona</p>
+        </div>
+        <div class="progress-container">
+            <span style="font-size: 0.85rem;" id="progress-text">0% Completado</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+        <div class="module-list" id="module-list">
+            </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <h2 id="current-module-title">Selecciona una clase para comenzar</h2>
+        </header>
+        <div class="video-container">
+            <div class="iframe-wrapper">
+                <iframe id="video-player" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <div class="lesson-info">
+                <h3 id="current-lesson-title">Bienvenido al Curso</h3>
+                <p id="current-lesson-desc">Aprende a tocar el acordeón diatónico paso a paso. Selecciona una clase en el menú lateral para iniciar tu aprendizaje musical.</p>
+                <button class="btn-complete" id="btn-mark-complete" style="display:none;">Marcar como completada</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Array con todos los IDs extraídos de tu lista de YouTube
+        const ytIds = [
+            "_mhGzl8c4iE", "HIcvPSCTwCk", "zXLoRBcgeZE", "L_ns6-gsz90", "LZUqMPQGevI", 
+            "FSuidCvAUH4", "gx3e6_byr0k", "YjqQTN5FdNo", "iBR9AIK60wE", "pLl0KyjOMwk", 
+            "T4LWkN9m_PE", "Qskdwf4QTTE", "mfzGau3F9tI", "mVnx5XQB8SE", "GV0GGhEAcTo", 
+            "n38z4j_I4kw", "q_wCZZSRx_M", "_77FtlHxVQI", "tYyoBtigHK8", "QR5mrbahcVI", 
+            "3jLBCZwAmK8", "zIarAnwimMs", "51cB-k_dat4", "opUFtVT1qYI", "CKMwRn0eANc", 
+            "o7JctmzUarQ", "HlH1S97gpyg", "Nqmcox1wr4I", "0PkFrg5wX48", "Z5KknhsPIGs", 
+            "zv5RzWwpxOQ", "BCaSX99vnvk", "XSN6pDyhVuI", "yzg5H3Eb7F0", "ToQ6vKW_V8Y", 
+            "G1RFwyxrIMU", "QBU6iCdv2P4", "F1Yg_g93TWA", "yYfXGqhxMa0", "n8gZTGG6ByQ", 
+            "Dp9rUSklrZ0", "EPfLf-0Dsv4", "tPZB04WwlYo", "_MnmlbuaISQ", "0F4h5RO7v_Y", 
+            "Xx7CDbNIBvY", "TLXkB9F2H8k", "qkDh3lmIh5Q", "aiLiGqgDbFE", "Hz_GO_v43lc", 
+            "0zWHx4x8iNs", "CHv5mXT8SYw", "hGb3eB1lozw", "Odl4dE_bnRU", "H1PWw3z7jDY", 
+            "gdM1Hx4OQPg", "LPeHYa_sJoU", "dRiTaFxDfdo", "-3XoasvK2Yc", "DsGPuJZXxJI", "HVlRSh21bpc"
+        ];
+
+        // Estructura pedagógica del curso
+        const courseData = [
+            {
+                title: "Módulo 1: Fundamentos y Primeros Sonidos",
+                lessons: ytIds.slice(0, 13).map((id, index) => ({
+                    id: index, 
+                    title: index === 0 ? "Lanzamiento del Curso" : `Clase ${index} - Ejercicios Básicos`, 
+                    ytId: id 
+                }))
+            },
+            {
+                title: "Módulo 2: Independencia y Coordinación",
+                lessons: ytIds.slice(13, 26).map((id, index) => ({
+                    id: index + 13, 
+                    title: `Clase ${index + 13} - Coordinación`, 
+                    ytId: id 
+                }))
+            },
+            {
+                title: "Módulo 3: El Ritmo de Paseo Vallenato",
+                lessons: ytIds.slice(26, 39).map((id, index) => ({
+                    id: index + 26, 
+                    title: `Clase ${index + 26} - Paseo Vallenato`, 
+                    ytId: id 
+                }))
+            },
+            {
+                title: "Módulo 4: Explorando el Merengue y Cumbia",
+                lessons: ytIds.slice(39, 51).map((id, index) => ({
+                    id: index + 39, 
+                    title: `Clase ${index + 39} - Merengue y Ejercicios`, 
+                    ytId: id 
+                }))
+            },
+            {
+                title: "Módulo 5: Repertorio y Técnicas Avanzadas",
+                lessons: ytIds.slice(51).map((id, index) => {
+                    let title = `Clase ${index + 51} - Técnicas de Repertorio`;
+                    if(index + 51 === 58) title = "Clase 58 - Cumbia Marta Cecilia";
+                    return { id: index + 51, title: title, ytId: id };
+                })
+            }
+        ];
+
+        let completedLessons = JSON.parse(localStorage.getItem('accordionProgress')) || [];
+        let currentLessonData = null;
+
+        const moduleListEl = document.getElementById('module-list');
+        const videoPlayer = document.getElementById('video-player');
+        const currentModuleTitle = document.getElementById('current-module-title');
+        const currentLessonTitle = document.getElementById('current-lesson-title');
+        const btnComplete = document.getElementById('btn-mark-complete');
+
+        function renderSidebar() {
+            moduleListEl.innerHTML = '';
+            courseData.forEach((mod, modIndex) => {
+                const modEl = document.createElement('div');
+                modEl.className = 'module';
+                
+                const modTitle = document.createElement('div');
+                modTitle.className = 'module-title';
+                modTitle.innerHTML = `<span>${mod.title}</span> <span>▼</span>`;
+                modTitle.onclick = () => modEl.classList.toggle('active');
+
+                const lessonList = document.createElement('ul');
+                lessonList.className = 'lesson-list';
+
+                mod.lessons.forEach(lesson => {
+                    const lessonEl = document.createElement('li');
+                    lessonEl.className = 'lesson';
+                    lessonEl.id = `lesson-${lesson.id}`;
+                    
+                    const isCompleted = completedLessons.includes(lesson.id);
+                    
+                    lessonEl.innerHTML = `
+                        <input type="checkbox" ${isCompleted ? 'checked' : ''} onclick="toggleComplete(event, ${lesson.id})">
+                        ${lesson.title}
+                    `;
+                    
+                    lessonEl.onclick = (e) => {
+                        if(e.target.tagName !== 'INPUT') {
+                            loadLesson(lesson, mod.title);
+                            document.querySelectorAll('.lesson').forEach(l => l.classList.remove('active'));
+                            lessonEl.classList.add('active');
+                        }
+                    };
+
+                    lessonList.appendChild(lessonEl);
+                });
+
+                modEl.appendChild(modTitle);
+                modEl.appendChild(lessonList);
+                moduleListEl.appendChild(modEl);
+            });
+            updateProgress();
+        }
+
+        function loadLesson(lesson, moduleTitle) {
+            currentLessonData = lesson;
+            videoPlayer.src = `https://www.youtube.com/embed/${lesson.ytId}?autoplay=1`;
+            currentModuleTitle.innerText = moduleTitle;
+            currentLessonTitle.innerText = lesson.title;
+            btnComplete.style.display = 'block';
+            
+            if(completedLessons.includes(lesson.id)) {
+                btnComplete.innerText = "Clase Completada ✓";
+                btnComplete.style.backgroundColor = "#2a9d8f";
+            } else {
+                btnComplete.innerText = "Marcar como completada";
+                btnComplete.style.backgroundColor = "var(--secondary)";
+            }
+        }
+
+        function toggleComplete(event, lessonId) {
+            if(event.target.checked) {
+                if(!completedLessons.includes(lessonId)) completedLessons.push(lessonId);
+            } else {
+                completedLessons = completedLessons.filter(id => id !== lessonId);
+            }
+            saveProgress();
+            
+            // Actualizar botón si es la lección actual
+            if(currentLessonData && currentLessonData.id === lessonId) {
+                loadLesson(currentLessonData, currentModuleTitle.innerText);
+            }
+        }
+
+        btnComplete.onclick = () => {
+            if(currentLessonData) {
+                const checkbox = document.querySelector(`#lesson-${currentLessonData.id} input`);
+                const isCurrentlyCompleted = completedLessons.includes(currentLessonData.id);
+                
+                checkbox.checked = !isCurrentlyCompleted;
+                toggleComplete({target: {checked: !isCurrentlyCompleted}}, currentLessonData.id);
+            }
+        };
+
+        function saveProgress() {
+            localStorage.setItem('accordionProgress', JSON.stringify(completedLessons));
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const totalLessons = courseData.reduce((total, mod) => total + mod.lessons.length, 0);
+            const percent = totalLessons === 0 ? 0 : Math.round((completedLessons.length / totalLessons) * 100);
+            
+            document.getElementById('progress-fill').style.width = `${percent}%`;
+            document.getElementById('progress-text').innerText = `${percent}% Completado (${completedLessons.length}/${totalLessons})`;
+        }
+
+        // Inicializar
+        renderSidebar();
+        
+        // Abrir el primer módulo por defecto
+        if(moduleListEl.firstChild) {
+            moduleListEl.firstChild.classList.add('active');
+            loadLesson(courseData[0].lessons[0], courseData[0].title);
+            document.getElementById(`lesson-${courseData[0].lessons[0].id}`).classList.add('active');
+        }
+    </script>
+</body>
+</html>
